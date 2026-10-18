@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Traceback</title>
+<script src="https://cdn.jsdelivr.net/npm/force-graph@1.43.5/dist/force-graph.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<style>
+:root{--bg:#f5f6fb;--card:#fff;--ink:#1b1f2a;--mute:#667085;--line:#e6e8f0;--accent:#4f46e5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+body{background:radial-gradient(1100px 600px at 8% -10%,#e0e7ff 0,transparent 60%),radial-gradient(900px 520px at 100% 0,#fce7f3 0,transparent 55%),var(--bg);background-attachment:fixed}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.layout{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,900px) minmax(0,1fr);gap:28px;max-width:1750px;margin:0 auto;padding:0 24px}
+.wrap{padding:32px 0 80px}
+.eyebrow{display:inline-block;font-size:13px;font-weight:600;color:#4338ca;background:#eef2ff;border:1px solid #d9defc;border-radius:20px;padding:5px 12px;margin-bottom:12px}
+.rail{padding-top:96px}
+.rail .stick{position:sticky;top:24px;display:flex;flex-direction:column;gap:16px}
+.rcard{background:rgba(255,255,255,.82);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+.rcard h3{margin:0 0 12px;font-size:15px;text-transform:uppercase;letter-spacing:.6px;color:var(--accent)}
+.st{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
+.st:last-child{margin-bottom:0}
+.st i{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-style:normal;font-weight:700;display:grid;place-items:center;font-size:14px}
+.st b{display:block;font-size:15px}.st span{font-size:13px;color:var(--mute)}
+.q{font-size:14px;color:#344054;padding:7px 0;border-top:1px solid var(--line)}
+.q:first-of-type{border-top:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#f6f7fd;border-radius:12px;padding:12px}
+.stat.wide{grid-column:span 2}
+.stat b{display:block;font-size:28px;line-height:1.1}.stat span{font-size:12px;color:var(--mute)}
+.badge2{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mute)}
+@media(max-width:1500px){.layout{grid-template-columns:minmax(0,900px);justify-content:center}.rail{display:none}}
+h1{font-size:34px;margin:0;letter-spacing:-.5px}
+.sub{color:var(--mute);font-size:17px;margin:6px 0 22px}
+.ask{display:flex;gap:10px}
+.ask input{flex:1;min-width:0;font-size:18px;padding:16px 18px;border:2px solid var(--line);border-radius:14px;outline:none;background:#fff}
+.ask input:focus{border-color:var(--accent)}
+.ask button{font-size:17px;padding:0 26px;border:0;border-radius:14px;background:var(--accent);color:#fff;cursor:pointer;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 26px}
+.chips span{font-size:14px;padding:7px 13px;border:1px solid var(--line);border-radius:20px;background:#fff;cursor:pointer;color:#344054}
+.chips span:hover{border-color:var(--accent);color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+.card h2{font-size:19px;margin:0 0 14px;display:flex;gap:10px;align-items:center}
+.summary{background:linear-gradient(135deg,#eef2ff,#f5f3ff);border-color:#d9defc}
+.summary .lbl{font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.summary p{font-size:21px;margin:0 0 8px;font-weight:500}
+.note{color:var(--mute);font-size:13px;margin-top:12px}
+.row{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:18px;flex:none}
+.grow{flex:1;min-width:0}
+.name{font-weight:600;font-size:17px}
+.name a{color:inherit;text-decoration:none}
+.badge{font-size:12px;background:#e0e7ff;color:#3730a3;border-radius:10px;padding:2px 8px;margin-left:8px;font-weight:600}
+.meta{color:var(--mute);font-size:14px}
+.bar{height:8px;background:#eef0f6;border-radius:6px;overflow:hidden;margin:6px 0 4px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:6px}
+.big{font-size:44px;font-weight:800;line-height:1}
+.impact{display:inline-block;font-weight:700;border-radius:10px;padding:3px 10px;color:#fff;font-size:14px;margin-left:10px;vertical-align:middle}
+.grp{margin-top:14px}.grp b{display:block;margin-bottom:6px;font-size:15px}
+.pill{display:inline-block;background:#f1f3f9;border-radius:9px;padding:4px 10px;margin:0 6px 6px 0;font-size:14px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.tl{border-left:3px solid #e0e3f5;margin-left:8px;padding-left:20px}
+.ev{position:relative;margin-bottom:20px}
+.ev:before{content:"";position:absolute;left:-29px;top:7px;width:11px;height:11px;border-radius:50%;background:var(--accent)}
+.ev .date{font-size:13px;color:var(--mute);font-weight:600}
+.ev .t{font-weight:600;font-size:16px}.ev .t a{color:var(--ink)}
+.prob{margin-top:6px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:8px 12px;font-size:14px}
+.prob a{color:#9a3412}
+.step{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)}
+.step:first-of-type{border-top:0}
+.node{background:#eef2ff;border-radius:10px;padding:5px 12px;font-weight:600;font-size:15px}
+.verb{color:var(--mute);font-size:14px}
+#graph{height:420px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fbfbfe}
+.legend{font-size:13px;color:var(--mute);margin:10px 0 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 5px 0 12px}
+details{margin-top:6px;color:var(--mute);font-size:13px}
+summary{cursor:pointer}
+.load{display:flex;align-items:center;gap:12px;color:var(--mute);font-size:17px;padding:30px 4px}
+.spin{width:22px;height:22px;border:3px solid #dfe3f5;border-top-color:var(--accent);border-radius:50%;animation:s 0.8s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+.err{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+@media(max-width:600px){h1{font-size:28px}.ask{flex-direction:column}.ask button{padding:14px}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="layout">
+<aside class="rail"><div class="stick">
+  <div class="rcard">
+    <h3>How it works</h3>
+    <div class="st"><i>1</i><div><b>You ask in plain words</b><span>No code knowledge needed.</span></div></div>
+    <div class="st"><i>2</i><div><b>An AI agent picks graph tools</b><span>It can only answer from the graph, not from memory.</span></div></div>
+    <div class="st"><i>3</i><div><b>FalkorDB follows the connections</b><span>People, files, changes and problems, linked together.</span></div></div>
+    <div class="st"><i>4</i><div><b>You see the proof</b><span>Every answer shows the path it took.</span></div></div>
+  </div>
+  <div class="rcard">
+    <h3>You can ask about</h3>
+    <div class="q">👥 Who knows a file best</div>
+    <div class="q">💥 What could break if it changes</div>
+    <div class="q">🕰️ Why it was built this way</div>
+    <div class="q">⭐ Which files matter most</div>
+    <div class="q">🔗 How two things are connected</div>
+  </div>
+</div></aside>
+<div class="wrap">
+  <div class="eyebrow">🕸️ Powered by FalkorDB · Built for Graph Hacks</div>
+  <h1>Traceback</h1>
+  <p class="sub">Ask about the Flask codebase. Every answer comes with proof from a knowledge graph.</p>
+  <div class="ask"><input id="q" placeholder="Try: Who knows app.py best?"><button id="go">Ask</button></div>
+  <div class="chips">
+    <span>Who knows app.py best, and what could break if I change it?</span>
+    <span>Why does sessions.py work the way it does?</span>
+    <span>Which files are the riskiest to change?</span>
+    <span>How are davidism and globals.py connected?</span>
+  </div>
+  <div id="out"></div>
+  <div class="card" id="proof" style="display:none">
+    <h2>🔎 Proof: how we found this</h2>
+    <div class="meta" style="margin-bottom:10px">Every dot is a file, a person, a change request (PR) or a problem report (issue). The lines show how they are connected.</div>
+    <div id="graph"></div>
+    <div class="legend"><i style="background:#4f7cff"></i>File<i style="background:#f59e0b"></i>Person<i style="background:#22c55e"></i>Change request<i style="background:#ef4444"></i>Problem report</div>
+    <details id="tech"><summary>Technical details</summary><div id="techbody"></div></details>
+  </div>
+</div>
+<aside class="rail"><div class="stick">
+  <div class="rcard">
+    <h3>The graph behind it</h3>
+    <div class="stats" id="stats"><div class="stat wide"><span>Loading…</span></div></div>
+  </div>
+  <div class="rcard">
+    <h3>Real data</h3>
+    <div class="badge2">📦 The public pallets/flask repository and its GitHub history. No private data.</div>
+  </div>
+</div></aside>
+</div>
+<script>
+const REL = {AUTHORED:'wrote', REVIEWED:'reviewed', COMMITTED:'edited', MODIFIES:'changed', CLOSES:'solved', RAISED_BY:'reported by', IMPORTS:'uses', PART_OF:'belongs to'};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const base = p => { const s = String(p).split('/'); const n = s.pop(); const par = s.pop();
+  return (par && par !== 'flask' && n.endsWith('.py')) ? par + '/' + n : n; };
+const pl = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+const safeUrl = u => (typeof u === 'string' && u.startsWith('https://github.com/')) ? u : '#';
+const COLORS = ['#4f46e5','#0891b2','#db2777','#ea580c','#16a34a','#7c3aed','#0d9488'];
+const colorFor = s => COLORS[[...String(s)].reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
+const card = (icon, title, body, cls = '') => `<div class="card ${cls}"><h2><span>${icon}</span><span>${title}</span></h2>${body}</div>`;
+
+function expertsCard(r){
+  if (r.error) return card('⚠️', 'Not found', `<div class="meta">${esc(r.error)}</div>`, 'err');
+  const ex = r.experts || [];
+  if (!ex.length) return '';
+  const max = Math.max(...ex.map(e => e.score), 1);
+  const rows = ex.map((e, i) => `
+    <div class="row">
+      <div class="av" style="background:${colorFor(e.login)}">${esc(e.login[0].toUpperCase())}</div>
+      <div class="grow">
+        <div class="name"><a href="https://github.com/${encodeURIComponent(e.login)}" target="_blank" rel="noopener">${esc(e.login)}</a>${i === 0 ? '<span class="badge">Best match</span>' : ''}</div>
+        <div class="bar"><i style="width:${Math.round(e.score / max * 100)}%"></i></div>
+        <div class="meta">${pl(e.commits, 'code change')} · ${pl(e.authored_prs.length, 'change request')} written · ${pl(e.reviewed_prs.length, 'review')}</div>
+      </div>
+    </div>`).join('');
+  return card('👥', `Who knows <b>${esc(base(r.file))}</b> best`, rows + '<div class="note">Ranked by their activity on this file. A good hint, not proof of expertise.</div>');
+}
+
+function blastCard(r){
+  if (r.error) return card('⚠️', 'Not found', `<div class="meta">${esc(r.error)}</div>`, 'err');
+  const a = r.affected || [], n = a.length;
+  const direct = a.filter(x => x.hops === 1), indirect = a.filter(x => x.hops > 1);
+  const lvl = n >= 15 ? ['High impact', '#dc2626'] : n >= 5 ? ['Medium impact', '#d97706'] : ['Low impact', '#16a34a'];
+  const pills = l => l.map(x => `<span class="pill">${esc(base(x.file))}</span>`).join('');
+  const body = n === 0 ? '<div class="meta">No other file depends on this one.</div>' : `<div><span class="big">${n}</span> <span style="font-size:18px">files could be affected</span><span class="impact" style="background:${lvl[1]}">${lvl[0]}</span></div>
+    ${direct.length ? `<div class="grp"><b>Use it directly (${direct.length})</b>${pills(direct)}</div>` : ''}
+    ${indirect.length ? `<div class="grp"><b>Use it through other files (${indirect.length})</b>${pills(indirect)}</div>` : ''}
+    <div class="note">Impact level is based on how many files rely on this one.</div>`;
+  return card('💥', `If you change <b>${esc(base(r.file))}</b>, these could break`, body);
+}
+
+function traceCard(r){
+  if (r.error) return card('⚠️', 'Not found', `<div class="meta">${esc(r.error)}</div>`, 'err');
+  const h = r.history || [];
+  if (!h.length) return '';
+  const ev = h.map(x => {
+    const d = new Date(x.merged_at);
+    const date = isNaN(d) ? '' : d.toLocaleDateString('en', {month: 'short', year: 'numeric'});
+    const iss = x.issue ? `<div class="prob"><b>Problem it solved:</b> <a href="${safeUrl(x.issue.url)}" target="_blank" rel="noopener">#${x.issue.number} ${esc(x.issue.title)}</a></div>` : '';
+    return `<div class="ev"><div class="date">${esc(date)} · by ${esc(x.author)}</div>
+      <div class="t"><a href="${safeUrl(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a></div>${iss}</div>`;
+  }).join('');
+  return card('🕰️', `Why <b>${esc(base(r.file))}</b> is the way it is`, `<div class="tl">${ev}</div>
+    <div class="note">Each item is a real change request on GitHub. Click one to read the full discussion.</div>`);
+}
+
+function riskCard(r){
+  const f = r.files || [];
+  if (!f.length) return '';
+  const max = Math.max(...f.map(x => x.score), 0.0001);
+  const rows = f.map((x, i) => `<div class="row"><div class="av" style="background:${colorFor(x.file)}">${i + 1}</div>
+    <div class="grow"><div class="name">${esc(base(x.file))}</div><div class="bar"><i style="width:${Math.round(x.score / max * 100)}%"></i></div>
+    <div class="meta">${esc(x.file)}</div></div></div>`).join('');
+  return card('⭐', 'Most critical files', rows + '<div class="note">Many other files rely on these, so a mistake here spreads furthest.</div>');
+}
+
+function pathCard(r){
+  if (r.error) return card('⚠️', 'Not found', `<div class="meta">${esc(r.error)}</div>`, 'err');
+  if (!r.found) return card('🔗', 'How they are connected', `<div class="meta">No connection found between ${esc(r.from)} and ${esc(r.to)} within a few steps.</div>`);
+  const steps = (r.path || []).map(e => `<div class="step"><span class="node">${esc(base(e.from))}</span><span class="verb">${esc(REL[e.rel] || e.rel)} →</span><span class="node">${esc(base(e.to))}</span></div>`).join('');
+  return card('🔗', `How <b>${esc(base(r.from))}</b> and <b>${esc(base(r.to))}</b> are connected`, steps + `<div class="note">${r.hops} step${r.hops === 1 ? '' : 's'} apart in the graph.</div>`);
+}
+
+const RENDER = {find_experts: expertsCard, blast_radius: blastCard, trace_decision: traceCard, riskiest_files: riskCard, path_between: pathCard};
+
+// ---- graph ----
+const GC = {File:'#4f7cff', Person:'#f59e0b', PR:'#22c55e', Issue:'#ef4444'};
+const kind = n => n.startsWith('PR #') ? 'PR' : n.startsWith('Issue #') ? 'Issue' : (n.includes('/') || n.endsWith('.py')) ? 'File' : 'Person';
+const gel = document.getElementById('graph'), proof = document.getElementById('proof');
+const Graph = ForceGraph()(gel).backgroundColor('#fbfbfe').nodeId('id')
+  .linkColor(() => '#aab2c5').linkDirectionalArrowLength(5).linkDirectionalArrowRelPos(1)
+  .nodeCanvasObject((n, ctx, s) => {
+    ctx.beginPath(); ctx.arc(n.x, n.y, 6, 0, 2 * Math.PI); ctx.fillStyle = GC[n.kind]; ctx.fill();
+    ctx.font = `${12 / s}px sans-serif`; ctx.fillStyle = '#1b1f2a'; ctx.textAlign = 'center';
+    ctx.fillText(base(n.id), n.x, n.y + 16 / s);
+  })
+  .linkCanvasObjectMode(() => 'after')
+  .linkCanvasObject((l, ctx, s) => {
+    ctx.font = `${9 / s}px sans-serif`; ctx.fillStyle = '#667085'; ctx.textAlign = 'center';
+    ctx.fillText(REL[l.rel] || l.rel, (l.source.x + l.target.x) / 2, (l.source.y + l.target.y) / 2);
+  });
+
+function drawGraph(edges){
+  if (!edges.length) { proof.style.display = 'none'; return; }
+  proof.style.display = 'block';
+  Graph.width(gel.clientWidth).height(420);
+  const ids = new Set(); edges.forEach(e => { ids.add(e.from); ids.add(e.to); });
+  Graph.graphData({nodes: [...ids].map(id => ({id, kind: kind(id)})), links: edges.map(e => ({source: e.from, target: e.to, rel: e.rel}))});
+  setTimeout(() => Graph.zoomToFit(400, 50), 600);
+}
+
+// ---- ask ----
+let reqId = 0;
+async function ask(text){
+  const my = ++reqId, out = document.getElementById('out');
+  proof.style.display = 'none';
+  out.innerHTML = '<div class="load"><div class="spin"></div>Searching the knowledge graph…</div>';
+  try {
+    const r = await fetch('/api/ask', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({question: text})});
+    const d = await r.json();
+    if (my !== reqId) return;
+    const summary = d.answer ? `<div class="card summary"><div class="lbl">In short</div>${DOMPurify.sanitize(marked.parse(d.answer))}</div>` : '';
+    const cards = (d.results || []).map(t => (RENDER[t.tool] ? RENDER[t.tool](t.result) : '')).join('');
+    out.innerHTML = summary + cards;
+    document.getElementById('techbody').innerHTML = `<p>Graph tools used: ${d.tools.map(t => `<span class="pill">${esc(t.tool)}(${esc(Object.values(t.input).join(', '))})</span>`).join('')}</p>
+      <p>Database: FalkorDB · ${d.edges.length} graph edges used</p>`;
+    drawGraph(d.edges);
+  } catch (e) {
+    if (my === reqId) out.innerHTML = card('⚠️', 'Something went wrong', `<div class="meta">${esc(e)}</div>`, 'err');
+  }
+}
+
+const input = document.getElementById('q');
+document.getElementById('go').onclick = () => input.value && ask(input.value);
+input.onkeydown = e => { if (e.key === 'Enter' && input.value) ask(input.value); };
+document.querySelectorAll('.chips span').forEach(s => s.onclick = () => { input.value = s.textContent; ask(s.textContent); });
+
+// live graph stats
+fetch('/api/stats').then(r => r.json()).then(s => {
+  const n = s.nodes || {};
+  const items = [['File', 'files'], ['PR', 'change requests'], ['Person', 'people'], ['Issue', 'problem reports']];
+  document.getElementById('stats').innerHTML =
+    items.map(([k, l]) => `<div class="stat"><b>${n[k] ?? '–'}</b><span>${l}</span></div>`).join('') +
+    `<div class="stat wide"><b>${s.edges}</b><span>connections between them</span></div>`;
+}).catch(() => {});
+
+// animated network background
+(function () {
+  const c = document.getElementById('bg'), x = c.getContext('2d');
+  const cols = ['#4f7cff', '#f59e0b', '#22c55e', '#ef4444'];
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W, H, pts = [];
+  function size() {
+    W = c.width = innerWidth; H = c.height = innerHeight;
+    pts = Array.from({length: Math.round(W * H / 22000)}, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25,
+      r: 2 + Math.random() * 2.5, k: Math.floor(Math.random() * 4)}));
+  }
+  function tick() {
+    x.clearRect(0, 0, W, H);
+    for (const p of pts) { p.x += p.vx; p.y += p.vy; if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1; }
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+      const a = pts[i], b = pts[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < 140) { x.strokeStyle = `rgba(99,102,241,${(1 - d / 140) * .2})`; x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); x.stroke(); }
+    }
+    for (const p of pts) { x.fillStyle = cols[p.k] + '66'; x.beginPath(); x.arc(p.x, p.y, p.r, 0, 6.283); x.fill(); }
+    if (!still) requestAnimationFrame(tick);
+  }
+  addEventListener('resize', () => { size(); if (still) tick(); });
+  size(); tick();
+})();
+</script>
+</body>
+</html>

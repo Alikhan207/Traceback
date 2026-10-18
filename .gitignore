@@ -1,0 +1,9 @@
+repo_clone/
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv/
+env/
+venv/
+*.log
