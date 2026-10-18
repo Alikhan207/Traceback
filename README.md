@@ -12,7 +12,7 @@ It runs on a **FalkorDB knowledge graph** of a real open-source project ([pallet
 
 **Graph Hacks tracks:** Agents That Act on Connected Data · Company Brain
 
-**Demo video:** [PASTE VIDEO LINK]
+**Demo video:** [https://youtu.be/-wsKmVlNKMk]
 
 ![Traceback answering "Who knows app.py best?"](docs/screenshot-answer.png)
 ![The graph path behind the answer](docs/screenshot-graph.png)
