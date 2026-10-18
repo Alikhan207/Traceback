@@ -160,7 +160,7 @@ Ingestion is safe to re-run: it uses `MERGE`, skips pull requests that are alrea
 
 ## Built with AI assistance (disclosure)
 
-AI tools helped build this project: Claude was used to plan the graph model and draft the ingestion, tool and UI code, and Antigravity was used as the editor. The running agent uses `gemini-3.8-flash`. We designed the graph schema and scoring rules, wrote custom Cypher traversals in FalkorDB, and resolved cycle handling in blast radius calculations. Antigravity and Claude were used to assist in writing queries, drafting UI components, and connecting the Gemini 3.8 Flash agent loop to live FalkorDB graph tools. We verified all agent answers against the graph, such as PR #5632 closing issues 1574, 5428, and 5621, and shortest path connections between contributors and files. We can explain the graph model, the queries and the scoring in this README.
+AI tools helped build this project: Claude was used to plan the graph model and draft the ingestion, tool and UI code, and Antigravity was used as the editor. The running agent uses `gemini-3.7-flash` (configurable via `GEMINI_MODEL`). We designed the graph schema and scoring rules, wrote custom Cypher traversals in FalkorDB, and resolved cycle handling in blast radius calculations. Antigravity and Claude were used to assist in writing queries, drafting UI components, and connecting the Gemini Flash agent loop to live FalkorDB graph tools. We verified all agent answers against the graph, such as PR #5632 closing issues 1574, 5428, and 5621, and shortest path connections between contributors and files. We can explain the graph model, the queries and the scoring in this README.
 
 ## Data and licensing
 

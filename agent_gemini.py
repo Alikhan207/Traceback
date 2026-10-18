@@ -4,7 +4,7 @@ from google.genai import types
 from tools import TOOLS
 
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+MODEL = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
 
 def decl(name, desc, props, required):
     return types.FunctionDeclaration(
